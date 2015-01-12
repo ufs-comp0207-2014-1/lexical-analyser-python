@@ -74,9 +74,14 @@ def t_error(t):
 # Build the lexer
 lexer = lex.lex()
 
+#
+# Não modificar esta função. Ela é usada para os testes.
+#
 def get_tokens(stream):
+    global levels
     # Give the lexer some input
     lexer.input(stream)
+    levels = [0]
     # Tokenize
     tokens = []
     while True:
