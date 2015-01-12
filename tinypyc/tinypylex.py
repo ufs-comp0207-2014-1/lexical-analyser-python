@@ -28,7 +28,7 @@ tokens = reserved + (
     'ID', #'ICONST',
 
     # Indentation tokens
-    'BEGIN', 'END',
+    'INDENT', 'BEGIN', 'END',
 
     # Delimeters ( ) :
     'LPAREN', 'RPAREN', 'COLON',
@@ -39,11 +39,31 @@ t_LPAREN           = r'\('
 t_RPAREN           = r'\)'
 t_COLON            = r':'
 
+# Completely ignored characters
+t_ignore           = ' '
 
 # Identifiers and reserved words
 def t_ID(t):
     r'[A-Za-z_][\w_]*'
     t.type = reserved_map.get(t.value,"ID")
+    return t
+
+def t_INDENT(t):
+    r'\n[ ]*.'
+    level = len(t.value) - 2
+    # current level
+    curr = levels[-1]
+    if level > curr :
+        levels.append(level)
+        t.type = 'BEGIN'
+        t.lexer.lexpos -= 1;
+    elif level < curr:
+        levels.pop()
+        t.type = 'END'
+        t.lexer.lexpos -= len(t.value);
+    else:
+        t.lexer.lexpos -= 1;
+        return None
     return t
 
 # Error handling rule
@@ -54,22 +74,14 @@ def t_error(t):
 # Build the lexer
 lexer = lex.lex()
 
-##############################################
-
-# Test it out
-data = '''
-if x :
-    pass
-else:
-    pass
-'''
-
-# Give the lexer some input
-lexer.input(data)
-
-# Tokenize
-while True:
-    tok = lexer.token()
-    if not tok:
-        break      # No more input
-    print(tok)
+def get_tokens(stream):
+    # Give the lexer some input
+    lexer.input(stream)
+    # Tokenize
+    tokens = []
+    while True:
+        token = lexer.token()
+        if not token:
+            break      # No more input
+        tokens.append(token)
+    return tokens
