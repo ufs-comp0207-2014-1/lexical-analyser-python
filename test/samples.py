@@ -17,4 +17,5 @@ data_02 = '''
 if      test:
     pass
 else:
-    fail'''
+    fail
+    '''

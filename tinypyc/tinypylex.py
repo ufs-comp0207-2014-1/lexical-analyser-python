@@ -28,7 +28,7 @@ tokens = reserved + (
     'ID', #'ICONST',
 
     # Indentation tokens
-    'INDENT', 'BEGIN', 'END',
+    'BEGIN', 'END',
 
     # Delimeters ( ) :
     'LPAREN', 'RPAREN', 'COLON',
@@ -40,7 +40,7 @@ t_RPAREN           = r'\)'
 t_COLON            = r':'
 
 # Completely ignored characters
-t_ignore           = ' '
+t_ignore           = r'[ ]'
 
 # Identifiers and reserved words
 def t_ID(t):
@@ -48,8 +48,8 @@ def t_ID(t):
     t.type = reserved_map.get(t.value,"ID")
     return t
 
-def t_INDENT(t):
-    r'\n[ ]*.'
+def t_indentation(t):
+    r'\n[ ]*[^ ]'
     level = len(t.value) - 2
     # current level
     curr = levels[-1]
@@ -65,6 +65,10 @@ def t_INDENT(t):
         t.lexer.lexpos -= 1;
         return None
     return t
+
+def t_eof(t):
+    r'[ \n]+$'
+    print("Matched EOF")
 
 # Error handling rule
 def t_error(t):
